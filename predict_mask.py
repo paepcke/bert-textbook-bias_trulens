@@ -10,16 +10,8 @@ finetuned_model_dir = 'finetuned_bert'
 samples_dir = 'sample_textbook_contexts/'
 outputs_dir = 'pred_textbook_contexts/'
 
-# Load tokenizer and fine-tuned model
-tokenizer = AutoTokenizer.from_pretrained(pretrained_model_dir)
-model = AutoModelForMaskedLM.from_pretrained(finetuned_model_dir)
 
-# Put the model in "evaluation" mode, meaning feed-forward operation
-model.eval()
-torch.set_grad_enabled(False)
-
-
-def feed_sample_sentence():
+def feed_sample_sentence(model, tokenizer):
     """Feed a sample sentence through the fine-tuned BERT model.
     Print the top 5 predictions for the masked token.
     """
@@ -48,7 +40,7 @@ def read_context_windows(path):
     return data
 
 
-def _prepare_masked_input(context):
+def _prepare_masked_input(tokenizer, context):
     """Take an input context tuple:
         (tokens_tensor, segments_tensor, tokenized_text,
         (gender_index, query_index, gender_word, query_word))
@@ -65,7 +57,7 @@ def _prepare_masked_input(context):
     tokens_tensor[0][gender_index] = mask_id
     return tokens_tensor, tokenized_text
 
-def _get_mask_probabilities(inputs, masked_position):
+def _get_mask_probabilities(model, tokenizer, inputs, masked_position):
     """Feed the input through BERT and return:
     1. Probability distribution of predicted words for [MASK] token.
     2. Top 5 predicted words for [MASK] token.
@@ -83,15 +75,15 @@ def _get_mask_probabilities(inputs, masked_position):
     top5_preds = tokenizer.decode(top5_preds)
     return probs, top5_preds
 
-def predict_gender_mask(context):
+def predict_gender_mask(model, tokenizer, context):
     """Feed context into BERT and get prediction for the masked gender token.
     Aggregate total probability for each gender and compute the normalized probability for the correct gender prediction.
     """
     # Parse example context into input tensors and mask the gender word
     _, _, _, sentence_info = context
     gender_index, _, gender_word, _ = sentence_info
-    tokens_tensor, tokenized_text = _prepare_masked_input(context)
-    probs, top5_preds = _get_mask_probabilities(tokens_tensor, gender_index)
+    tokens_tensor, tokenized_text = _prepare_masked_input(tokenizer, context)
+    probs, top5_preds = _get_mask_probabilities(model, tokenizer, tokens_tensor, gender_index)
 
     # Compute the normalized probability of the correct gender prediction
     man_words = set(['man', 'men', 'male', 'he', 'him', 'his'])
@@ -112,9 +104,17 @@ def predict_gender_mask(context):
 
 
 def main():
-    # pr_low.txt: p < 0.25 (high confidence, incorrect prediction)
-    # pr_med.txt: 0.45 < p < 0.55 (low confidence)
-    # pr_high.txt: p > 0.9999 (high confidence, correct prediction)
+    # Load tokenizer and fine-tuned model
+    tokenizer = AutoTokenizer.from_pretrained(pretrained_model_dir)
+    model = AutoModelForMaskedLM.from_pretrained(finetuned_model_dir)
+
+    # Put the model in "evaluation" mode, meaning feed-forward operation
+    model.eval()
+    torch.set_grad_enabled(False)
+
+    # pr_low.txt: high confidence, incorrect gender prediction
+    # pr_med.txt: low confidence
+    # pr_high.txt: high confidence, correct gender prediction
     files = ['pr_low.txt', 'pr_med.txt', 'pr_high.txt']
     os.makedirs(outputs_dir, exist_ok=True)
 
@@ -122,7 +122,7 @@ def main():
         dump = []
         data = read_context_windows(samples_dir + filename)
         for context in data:
-            norm_prob, top5_preds = predict_gender_mask(context)
+            norm_prob, top5_preds = predict_gender_mask(model, tokenizer, context)
             tokens_tensor, segments_tensor, tokenized_text, mask_info = context
             dump.append((tokens_tensor, segments_tensor, tokenized_text, mask_info, norm_prob, top5_preds))
         
