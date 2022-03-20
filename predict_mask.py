@@ -85,7 +85,7 @@ def _get_mask_probabilities(inputs, masked_position):
 
 def predict_gender_mask(context):
     """Feed context into BERT and get prediction for the masked gender token.
-    Aggregate total probability for each gender and compute the relative probability for the correct gender prediction.
+    Aggregate total probability for each gender and compute the normalized probability for the correct gender prediction.
     """
     # Parse example context into input tensors and mask the gender word
     _, _, _, sentence_info = context
@@ -93,7 +93,7 @@ def predict_gender_mask(context):
     tokens_tensor, tokenized_text = _prepare_masked_input(context)
     probs, top5_preds = _get_mask_probabilities(tokens_tensor, gender_index)
 
-    # Compute the relative probability of the correct gender prediction
+    # Compute the normalized probability of the correct gender prediction
     man_words = set(['man', 'men', 'male', 'he', 'him', 'his'])
     woman_words = set(['woman', 'women', 'female', 'she', 'her', 'hers'])
 
@@ -115,7 +115,7 @@ def main():
     # pr_low.txt: p < 0.25 (high confidence, incorrect prediction)
     # pr_med.txt: 0.45 < p < 0.55 (low confidence)
     # pr_high.txt: p > 0.9999 (high confidence, correct prediction)
-    files = ['pr_0.25.txt', 'pr_0.45_0.55.txt', 'pr_0.9999.txt']
+    files = ['pr_low.txt', 'pr_med.txt', 'pr_high.txt']
     os.makedirs(outputs_dir, exist_ok=True)
 
     for filename in files:
