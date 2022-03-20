@@ -1,2 +1,3 @@
+jupyter
 torch==1.11.0
 transformers==4.3.3
