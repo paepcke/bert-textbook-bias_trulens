@@ -4,7 +4,13 @@ This repo provides an example of the gender word prediction study conducted in [
 
 In the gender word prediction study, we extract several sample contexts from the textbook dataset, where each context contains a "gender" word and an "interest" word (related to home, work, and achievement) within a 10-token window. Then, we mask out the "gender" word in each context and evaluate BERT’s ability to predict the correct gender in different contexts.
 
-## Installation
+## Setup
+
+We use Git LFS (Large File Storage) to store the BERT fine-tuned model weights. In order to download the weights, [install git lfs](https://git-lfs.github.com/) and run the following command after cloning the repo.
+
+```bash
+git lfs pull
+```
 
 Create a python3 virtual environment and install the necessary packages.
 
