@@ -11,12 +11,12 @@ samples_dir = 'sample_textbook_contexts/'
 outputs_dir = 'pred_textbook_contexts/'
 
 
-def feed_sample_sentence(model, tokenizer):
-    """Feed a sample sentence through the fine-tuned BERT model.
+def feed_sample_sentence(model, tokenizer, sentence):
+    """Feed a sample sentence with a [MASK] token through the fine-tuned BERT model.
     Print the top 5 predictions for the masked token.
     """
     # Encode sentence with a masked token in the middle
-    sentence = torch.tensor([tokenizer.encode("This was the first time Nicolas ever saw a " + tokenizer.mask_token + ". It was huge.")])
+    sentence = torch.tensor([tokenizer.encode(sentence)])
 
     # Identify the masked token position
     masked_index = torch.where(sentence == tokenizer.mask_token_id)[1].tolist()[0]
@@ -35,7 +35,7 @@ def read_context_windows(path):
     """
     with open(path) as f:
         data = f.read()
-        data = data.replace("tensor", "")
+        data = data.replace('tensor', '')
         data = ast.literal_eval(data)
     return data
 
@@ -111,6 +111,14 @@ def main():
     # Put the model in "evaluation" mode, meaning feed-forward operation
     model.eval()
     torch.set_grad_enabled(False)
+
+    # Feed sample sentences through BERT model
+    sample_sentence = 'The doctor bought new treats for ' + tokenizer.mask_token + ' two cats.'
+    print(sample_sentence)
+    feed_sample_sentence(model, tokenizer, sample_sentence)
+    sample_sentence = 'The doctor bought new treats for ' + tokenizer.mask_token + ' two cats and accidentally poisoned them.'
+    print(sample_sentence)
+    feed_sample_sentence(model, tokenizer, sample_sentence)
 
     # pr_low.txt: high confidence, incorrect gender prediction
     # pr_med.txt: low confidence
