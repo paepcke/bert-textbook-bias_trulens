@@ -1,3 +1,4 @@
+
 # Analysis of Bias in U.S. History Textbooks Using BERT
 
 This repo provides an example of the gender word prediction study conducted in [Analysis of Bias in U.S. History Textbooks Using BERT](https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1214/reports/final_reports/report069.pdf), using the same fine-tuned BERT model and sample contexts drawn from the same U.S. History Textbook dataset.
@@ -6,16 +7,18 @@ In the gender word prediction study, we extract several sample contexts from the
 
 ## Setup
 
-We use Git LFS (Large File Storage) to store the BERT fine-tuned model weights. In order to download the weights, [install git lfs](https://git-lfs.github.com/) and run the following command after cloning the repo.
-
-```bash
-git lfs pull
-```
-
 Create a python3 virtual environment and install the necessary packages.
 
 ```bash
 pip install -r requirements.txt
+```
+
+After cloning the git repo, create a new directory named `finetuned_bert` and download the saved model weights into the directory using the following commands.
+
+```bash
+mkdir finetuned_bert
+cd finetuned_bert
+wget -e robots=off -r --no-host-directories --cut-dirs 4 --no-parent http://infolab.stanford.edu/~paepcke/textbook_bias_model/; rm index*
 ```
 
 ## Usage
