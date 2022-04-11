@@ -1,3 +1,13 @@
 jupyter
 torch==1.11.0
 transformers==4.3.3
+git+https://git@github.com/truera/trulens.git
+#git+https://git@github.com/paepcke/trulens_viz.git
+
+git+https://github.com/paepcke/trulens_viz.git
+
+
+matplotlib
+scipy
+domonic
+
