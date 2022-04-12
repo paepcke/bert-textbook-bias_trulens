@@ -10,7 +10,7 @@ In the gender word prediction study, we extract several sample contexts from the
 Create a python3 virtual environment and install the necessary packages.
 
 ```bash
-pip install -r requirements.txt
+pip install .
 ```
 
 After cloning the git repo, create a new directory named `finetuned_bert` and download the saved model weights into the directory using the following commands.
