@@ -103,6 +103,11 @@ class TruLensTester:
         files = ['pr_low.txt', 'pr_med.txt', 'pr_high.txt']
         os.makedirs(self.outputs_dir, exist_ok=True)
     
+        # The following runs through all examples. Stop
+        # at any time:
+        
+        print("Will now run through all examples in pr_low.txt et al. Stop when you've seen enough...")
+    
         for filename in files:
             dump = []
             data = read_context_windows(os.path.join(self.samples_dir, filename))
@@ -119,7 +124,7 @@ class TruLensTester:
                 for sentence_tokens in tokens_tensor:
                     sentence = tokenizer.decode(sentence_tokens)
                     word_attributions = self.feed_sample_sentence_trulens(task, sentence)
-                    html_tbl.add_row(word_attributions)
+                    html_tbl.add_rows(word_attributions)
 
 
     #------------------------------------
